@@ -4,6 +4,7 @@
 static NSString * TMSBundleID = @"net.earthlingsoft.TMSwitch";
 
 static NSString * TMSVolumeUUIDsKey = @"volumeUUIDs";
+
 static NSString * TMDefaultsFilePath = @"/Library/Preferences/com.apple.TimeMachine";
 static NSString * TMDefaultsAliasDataKey = @"BackupAlias";
 static NSString * TMDefaultsUUIDKey = @"DestinationVolumeUUID";
@@ -112,19 +113,25 @@ int main (int argc, const char * argv[]) {
 		for ( NSURL * volumeURL in volumeURLs ) {
 			NSString * volumeUUID = UUIDForVolumeURL( volumeURL );
 			if ( isQualifiedVolumeUUID(volumeUUID) ) {
-				NSData * aliasData = aliasDataForVolumeURL( volumeURL );
-			
-				NSUserDefaults * userDefaults = [NSUserDefaults standardUserDefaults];
-				NSDictionary * defaults = [[userDefaults persistentDomainForName: TMDefaultsFilePath] mutableCopy];
-				[defaults setValue: aliasData forKey: TMDefaultsAliasDataKey];
-				[defaults setValue: volumeUUID forKey: TMDefaultsUUIDKey];
-				
-				[userDefaults setPersistentDomain: defaults forName: TMDefaultsFilePath];
-				[userDefaults synchronize];
-				
-				NSString * message = [NSString stringWithFormat:@"New Time Machine volume is: %@.", [volumeURL path]];
-				const char * theMessage = [message cStringUsingEncoding:NSUTF8StringEncoding];
-				fprintf(stderr, theMessage);
+				NSString * currentVolumeUUID = [[[NSUserDefaults standardUserDefaults] persistentDomainForName:TMDefaultsFilePath] objectForKey: TMDefaultsUUIDKey];
+				if ( ! [volumeUUID isEqualToString: currentVolumeUUID ] ) {
+					NSData * aliasData = aliasDataForVolumeURL( volumeURL );
+					
+					NSUserDefaults * userDefaults = [NSUserDefaults standardUserDefaults];
+					NSDictionary * defaults = [[userDefaults persistentDomainForName: TMDefaultsFilePath] mutableCopy];
+					[defaults setValue: aliasData forKey: TMDefaultsAliasDataKey];
+					[defaults setValue: volumeUUID forKey: TMDefaultsUUIDKey];
+					
+					[userDefaults setPersistentDomain: defaults forName: TMDefaultsFilePath];
+					[userDefaults synchronize];
+					
+					NSString * message = [NSString stringWithFormat:@"New Time Machine volume is: %@.\n", [volumeURL path]];
+					const char * theMessage = [message cStringUsingEncoding:NSUTF8StringEncoding];
+					fprintf(stderr, theMessage);					
+				}
+				else {
+					fprintf(stderr, "Time Machine volume does not need to be changed.\n");					
+				}
 				break;
 			}
 		}
