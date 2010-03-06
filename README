@@ -1,0 +1,10 @@
+TMSwitch is a tool to automatically switch Time Machine volumes.
+
+It keeps a list of volume UUIDS which are used as Time Machine volumes. These can be set using the TMSwitch add and TMSwitch remove commands.
+
+When invoked, it picks the first volume it finds from that list and changes Time Machine's settings to use that volume for backups.
+
+The LaunchAgents folder contains agents:
+* TimeMachineSwitcher: invoking TMSwitch on volume mount and then running backupd-helper. The TMSwitch binary needs to be in ~/bin for this to work.
+* TimeMachineSleeper: turning Time Machine off at 22:30.
+* TimeMachineWaker: turning Time Machine of at 8:00.
