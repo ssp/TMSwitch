@@ -33,6 +33,10 @@
 		32A70AAB03705E1F00C91783 /* TMSwitch_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMSwitch_Prefix.pch; sourceTree = "<group>"; };
 		6C06F417112F2D0800636A95 /* DiskArbitration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DiskArbitration.framework; path = /System/Library/Frameworks/DiskArbitration.framework; sourceTree = "<absolute>"; };
 		6C06F49A112F3F2500636A95 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+		6CF41985114285A3000DDEC2 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		6CF4199111428798000DDEC2 /* net.earthlingsoft.TimeMachineSleeper.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = net.earthlingsoft.TimeMachineSleeper.plist; sourceTree = "<group>"; };
+		6CF4199211428798000DDEC2 /* net.earthlingsoft.TimeMachineSwitch.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = net.earthlingsoft.TimeMachineSwitch.plist; sourceTree = "<group>"; };
+		6CF4199311428798000DDEC2 /* net.earthlingsoft.TimeMachineWaker.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = net.earthlingsoft.TimeMachineWaker.plist; sourceTree = "<group>"; };
 		8DD76FA10486AA7600D96B5E /* TMSwitch */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TMSwitch; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6859EA3029092ED04C91782 /* TMSwitch.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = TMSwitch.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -55,6 +59,7 @@
 			isa = PBXGroup;
 			children = (
 				08FB7795FE84155DC02AAC07 /* Source */,
+				6CF4199011428798000DDEC2 /* LaunchAgents */,
 				C6859EA2029092E104C91782 /* Documentation */,
 				08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
@@ -89,10 +94,21 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		6CF4199011428798000DDEC2 /* LaunchAgents */ = {
+			isa = PBXGroup;
+			children = (
+				6CF4199111428798000DDEC2 /* net.earthlingsoft.TimeMachineSleeper.plist */,
+				6CF4199211428798000DDEC2 /* net.earthlingsoft.TimeMachineSwitch.plist */,
+				6CF4199311428798000DDEC2 /* net.earthlingsoft.TimeMachineWaker.plist */,
+			);
+			path = LaunchAgents;
+			sourceTree = "<group>";
+		};
 		C6859EA2029092E104C91782 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
 				C6859EA3029092ED04C91782 /* TMSwitch.1 */,
+				6CF41985114285A3000DDEC2 /* README */,
 			);
 			name = Documentation;
 			sourceTree = "<group>";
