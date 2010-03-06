@@ -139,12 +139,10 @@ int main (int argc, const char * argv[]) {
 	else if ( argc == 2 ) {
 		NSString * arg2 = [NSString stringWithUTF8String:argv[1]];
 		if ( [arg2 isEqualToString: @"help"] || [arg2 isEqualToString: @"-v"] ) {
-			fprintf(stderr, "TMSwitch Usage:\n");
-			fprintf(stderr, "TMSwitch - change Time Machine preferences to use the first allowed volume it can find\n");
-			fprintf(stderr, "TMSwitch [add|remove] /Volumes/Backupvolume - add/remove Backupvolume to list of allowed volumes\n\n");
-			fprintf(stderr, "TMSwitch list - list the UUIDs of all allowed volumes");
-			fprintf(stderr, "TMSwitch changes the /Library/Preferences/com.apple.TimeMachine settings.\n" );
-			fprintf(stderr, "... strange things may happen if used at the same time as other Time Machine tools.\n");
+			fprintf(stderr, "TMSwitch - set Time Machine to use the first known volume it can find.\n");
+			fprintf(stderr, "TMSwitch [add|remove] /Volumes/BackupVolume - edit known volumes.\n");
+			fprintf(stderr, "TMSwitch list - list  UUIDs of known volumes.\n");
+			fprintf(stderr, "Source code at: http://github.com/ssp/TMSwitch\n");
 		}
 		else if ( [arg2 isEqualToString: @"list"] ) {
 			NSArray * myUUIDs = [[[NSUserDefaults standardUserDefaults] persistentDomainForName: TMSBundleID] objectForKey: TMSVolumeUUIDsKey];
