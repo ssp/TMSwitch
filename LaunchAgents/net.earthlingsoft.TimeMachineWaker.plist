@@ -2,13 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>RunAtLoad</key>
+	<false/>
 	<key>Label</key>
 	<string>net.earthlingsoft.TimeMachineWaker</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/bin/sh</string>
 		<string>-c</string>
-		<string>defaults write /Library/Preferences/com.apple.TimeMachine AutoBackup -bool YES; /System/Library/CoreServices/backupd.bundle/Contents/Resources/backupd-helper -wake; syslog -s -l 5 &quot;net.earthlingsoft.TimeMachineWaker: Woke TimeMachine&quot;</string>
+		<string>echo &quot;Waking Time Machine.&quot;; defaults write /Library/Preferences/com.apple.TimeMachine AutoBackup -bool YES; /System/Library/CoreServices/backupd.bundle/Contents/Resources/backupd-helper -wake</string>
 	</array>
 	<key>StartCalendarInterval</key>
 	<dict>

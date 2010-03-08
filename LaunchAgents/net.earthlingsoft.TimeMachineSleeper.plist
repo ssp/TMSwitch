@@ -4,11 +4,13 @@
 <dict>
 	<key>Label</key>
 	<string>net.earthlingsoft.TimeMachineSleeper</string>
+	<key>RunAtLoad</key>
+	<false/>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/bin/sh</string>
 		<string>-c</string>
-		<string>defaults write /Library/Preferences/com.apple.TimeMachine AutoBackup -bool NO; /System/Library/CoreServices/backupd.bundle/Contents/Resources/backupd-helper -auto;  syslog -s -l 5 &quot;net.earthlingsoft.TimeMachineSleeper: Sent Time Machine to sleep&quot;</string>
+		<string>echo &quot;Sending Time Machine to sleep.&quot;; defaults write /Library/Preferences/com.apple.TimeMachine AutoBackup -bool NO; /System/Library/CoreServices/backupd.bundle/Contents/Resources/backupd-helper -auto</string>
 	</array>
 	<key>StartCalendarInterval</key>
 	<dict>
