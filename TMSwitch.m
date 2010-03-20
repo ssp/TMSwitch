@@ -151,22 +151,21 @@ int main (int argc, const char * argv[]) {
 	else if ( argc == 2 ) {
 		NSString * arg2 = [NSString stringWithUTF8String:argv[1]];
 		if ( [arg2 isEqualToString: @"help"] || [arg2 isEqualToString: @"-v"] ) {
-			fprintf(stderr, "TMSwitch - set Time Machine to use the first known volume it can find.\n");
-			fprintf(stderr, "TMSwitch [add|remove] /Volumes/BackupVolume - edit known volumes.\n");
-			fprintf(stderr, "TMSwitch list - list  UUIDs of known volumes.\n");
-			fprintf(stderr, "Source code at: http://github.com/ssp/TMSwitch\n");
+			NSLog(@"TMSwitch - set Time Machine to use the first known volume it can find.");
+			NSLog(@"TMSwitch [add|remove] /Volumes/BackupVolume - edit known volumes.");
+			NSLog(@"TMSwitch list - list  UUIDs of known volumes.");
+			NSLog(@"Source code at: http://github.com/ssp/TMSwitch");
 		}
 		else if ( [arg2 isEqualToString: @"list"] ) {
 			NSArray * myUUIDs = [[[NSUserDefaults standardUserDefaults] persistentDomainForName: TMSBundleID] objectForKey: TMSVolumeUUIDsKey];
 			if ( myUUIDs && [myUUIDs count] > 0 ) {
-				fprintf(stderr, "TMSwitch's known volume UUIDs:\n");
+				NSLog(@"TMSwitch's known volume UUIDs:");
 				for ( NSString * theUUID in myUUIDs ) {
-					fprintf(stderr, [theUUID cStringUsingEncoding:NSUTF8StringEncoding]);
-					fprintf(stderr, "\n");
+					NSLog(@"%@\n", [theUUID cStringUsingEncoding:NSUTF8StringEncoding]);
 				}
 			}
 			else {
-				fprintf(stderr, "No volume IDs are set up for use with TMSwitch.\nUse TMSwitch add to add some or TMSwitch help for more information.\n");
+				NSLog(@"No volume IDs are set up for use with TMSwitch.\nUse TMSwitch add to add some or TMSwitch help for more information.");
 			}
 		}
 	}
