@@ -84,23 +84,6 @@ BOOL isQualifiedVolumeUUID ( NSString * UUID ) {
 
 
 
-/*
-Doesn't work as I had hoped :(
- 
-NSData * aliasDataForVolumeURL ( NSURL * URL ) {
-	NSData * data = nil;
-	
-	NSError * error;
-	data = [URL bookmarkDataWithOptions:0 includingResourceValuesForKeys:nil relativeToURL:nil error:&error];
-	if (data == nil && error != nil) {
-		NSLog(@"%@", [error localizedDescription]);
-	}
-	
-	return data;
-}
-*/
-
-
 /* 
  Use code based on that at http://www.gearz.de/?load=snippets&ex=OSX&entry=tmDisk instead.
  Had I googled earlier, this might have saved me the effort.
