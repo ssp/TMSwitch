@@ -30,13 +30,13 @@
 #import <Foundation/Foundation.h>
 #import <sys/mount.h>
 
-static NSString * TMSBundleID = @"net.earthlingsoft.TMSwitch";
+NSString * const TMSBundleID = @"net.earthlingsoft.TMSwitch";
 
-static NSString * TMSVolumeUUIDsKey = @"volumeUUIDs";
+NSString * const TMSVolumeUUIDsKey = @"volumeUUIDs";
 
-static NSString * TMDefaultsFilePath = @"/Library/Preferences/com.apple.TimeMachine";
-static NSString * TMDefaultsAliasDataKey = @"BackupAlias";
-static NSString * TMDefaultsUUIDKey = @"DestinationVolumeUUID";
+NSString * const TMDefaultsFilePath = @"/Library/Preferences/com.apple.TimeMachine";
+NSString * const TMDefaultsAliasDataKey = @"BackupAlias";
+NSString * const TMDefaultsUUIDKey = @"DestinationVolumeUUID";
 
 
 NSString * UUIDForVolumeURL ( NSURL * volumeURL ) {
