@@ -3,7 +3,7 @@
 .\"man mdoc.samples for a complete listing of options
 .\"man mdoc for the short list of editing options
 .\"/usr/share/misc/mdoc.template
-.Dd 19.02.10               \" DATE 
+.Dd 20.03.10               \" DATE 
 .Dt TMSwitch 1      \" Program name and manual section number 
 .Os Darwin
 .Sh NAME                 \" Section Header - required - don't modify 
@@ -13,15 +13,17 @@
 .\" .Nm Other_name_for_same_program(),
 .\" .Nm Yet another name for the same program.
 .\" Use .Nm macro to designate other names for the documented program.
-.Nd Switches Time Machine volume.
+.Nd Switches Time Machine volume and status.
 .Sh SYNOPSIS             \" Section Header - required - don't modify
 .Nm
 .Op Ar list
 .Op Ar add|remove path              \" [file]
 .Sh DESCRIPTION          \" Section Header - required - don't modify
-Switches the current Time Machine volume. 
+Switches the current Time Machine volume.
+Also switches the Time Machine status, turning Time Machine on when run between 8:08 and 22:30 and off otherwise.
 .Pp
-It needs to be set up prior to usage and is best invoked automatically via a LaunchAgent when volumes are mounted.
+.Nm TMSwitch 
+needs to be set up prior to usage and is best invoked automatically via a LaunchAgent when volumes are mounted.
 .Pp
 It can simplify dealing with several backup volumes by automating the switch between them.
 .Sh SETUP
@@ -38,7 +40,7 @@ Remove volume from the list of known backup volumes
 .Sh USAGE
 Call 
 .Nm TMSwitch 
-to switch the current Time Machine backup volume to the first mounted volume 
+to switch the current Time Machine backup volume to the first mounted volume
 .Nm TMSwitch 
 finds in its list of known volumes. Doing so changes the /Library/Preferences/com.apple.TimeMachine.plist file.
 .Pp
