@@ -184,10 +184,11 @@ BOOL toggleTimeMachine () {
 	if ( actualStatus != desiredStatus ) {
 		NSMutableDictionary * myTMDefaults = [TMDefaults mutableCopy];
 		[myTMDefaults setObject: [NSNumber numberWithBool: desiredStatus] forKey: TMDefaultsAutoBackupKey];
+		[userDefaults setPersistentDomain: myTMDefaults forName: TMDefaultsFilePath];
 		[userDefaults synchronize];
 
 		// check whether our modification made it:
-		const BOOL newStatus = [[[[NSUserDefaults standardUserDefaults] persistentDomainForName: TMDefaultsFilePath] objectForKey: TMDefaultsAutoBackupKey] boolValue];
+		const BOOL newStatus = [[[userDefaults persistentDomainForName: TMDefaultsFilePath] objectForKey: TMDefaultsAutoBackupKey] boolValue];
 		NSString * newStatusWord = desiredStatus ? @"ON" : @"OFF";
 
 		if ( newStatus == desiredStatus ) {
@@ -207,7 +208,10 @@ BOOL toggleTimeMachine () {
 int main (int argc, const char * argv[]) {
 	if ( argc == 1 ) {
 		// no paramters, just switch the volume and change Time Machine's status
-		if ( switchVolume() || toggleTimeMachine() ) {
+		BOOL needsBackupd1 = switchVolume();
+		BOOL needsBackupd2 = toggleTimeMachine();
+		
+		if ( needsBackupd1 || needsBackupd2 ) {
 			// defaults were changed: run Time Machine
 			[NSTask launchedTaskWithLaunchPath:TMBackupdHelperPath arguments:[NSArray arrayWithObject:@"-auto"]];
 		}
