@@ -4,11 +4,11 @@
 <dict>
 	<key>Label</key>
 	<string>net.earthlingsoft.TimeMachineSwitcher</string>
+	<key>UserName</key>
+	<string>root</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/bin/sh</string>
-		<string>-c</string>
-		<string>~/bin/TMSwitch</string>
+		<string>/Users/ssp/bin/TMSwitch</string>
 	</array>
 	<key>StartOnMount</key>
 	<true/>

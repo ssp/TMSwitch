@@ -4,7 +4,7 @@
  
  The MIT License
  
- Copyright (c) 2010 Sven-S. Porst
+ Copyright (c) 2010-2011 Sven-S. Porst
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -26,20 +26,17 @@
  
 */
 
-
 #import <Foundation/Foundation.h>
 #import <sys/mount.h>
 
-NSString * const TMSBundleID = @"net.earthlingsoft.TMSwitch";
-
-NSString * const TMSVolumeUUIDsKey = @"volumeUUIDs";
+NSString * const TMSwitchBundleID = @"net.earthlingsoft.TMSwitch";
+NSString * const TMSwitchVolumeUUIDsKey = @"volumeUUIDs";
 
 NSString * const TMDefaultsFilePath = @"/Library/Preferences/com.apple.TimeMachine";
 NSString * const TMDefaultsAliasDataKey = @"BackupAlias";
 NSString * const TMDefaultsUUIDKey = @"DestinationVolumeUUID";
 NSString * const TMDefaultsAutoBackupKey = @"AutoBackup";
-
-NSString * const TMBackupdHelperPath = @"/System/Library/CoreServices/backupd.bundle/Contents/Resources/backupd-helper";
+NSString * const TMUtilPath = @"/usr/bin/tmutil";
 
 
 
@@ -76,47 +73,14 @@ BOOL isQualifiedVolumeUUID ( NSString * UUID ) {
 	BOOL result = NO;
 	
 	NSUserDefaults * UD = [NSUserDefaults standardUserDefaults];
-	NSDictionary * defaults = [UD persistentDomainForName: TMSBundleID];
-	NSArray * volumeUUIDs = [defaults objectForKey: TMSVolumeUUIDsKey];
+	NSDictionary * defaults = [UD persistentDomainForName: TMSwitchBundleID];
+	NSArray * volumeUUIDs = [defaults objectForKey: TMSwitchVolumeUUIDsKey];
 	
 	if ( [volumeUUIDs containsObject: UUID] ) {
 		result = YES;
 	}
 	
 	return result;
-}
-
-
-
-/* 
- Use code based on that at http://www.gearz.de/?load=snippets&ex=OSX&entry=tmDisk instead.
- Had I googled earlier, this might have saved me the effort.
-*/
-NSData * aliasDataForVolumeURL ( NSURL * URL ) {
-	NSData * data = nil;
-	
-	OSStatus error = noErr;
-	const char * path = [[URL path] cStringUsingEncoding: NSUTF8StringEncoding];
-	FSRef myFSRef;
-	error |= FSPathMakeRef(path, &myFSRef, NULL);
-	
-	Boolean isAlias = NO;
-	Boolean isFolder = NO;
-	error = FSIsAliasFile (&myFSRef, &isAlias, &isFolder);
-
-	if ( isAlias ) {
-		error |= FSResolveAliasFileWithMountFlags(&myFSRef, YES, &isFolder, &isAlias, kResolveAliasFileNoUI);
-	}
-
-	AliasHandle alias = NULL;
-	error |= FSNewAlias(NULL,&myFSRef,&alias);
-
-	if (error != noErr) {
-		NSLog(@"FAIL while creating Alias");
-	}
-	
-	data = [NSData dataWithBytes:(UInt8*) *alias length:GetHandleSize((Handle) alias)];
-	return data;
 }
 
 
@@ -134,20 +98,21 @@ BOOL switchVolume () {
 		if ( isQualifiedVolumeUUID(volumeUUID) ) {
 			
 			if ( ! [volumeUUID isEqualToString: currentVolumeUUID ] ) {
-				NSData * aliasData = aliasDataForVolumeURL( volumeURL );
+				NSArray * tmutilOptions = [NSArray arrayWithObjects:@"setdestination", [volumeURL path], nil];
+				NSTask * task = [NSTask launchedTaskWithLaunchPath:TMUtilPath arguments:tmutilOptions];
+				[task waitUntilExit];
 				
-				NSDictionary * defaults = [[userDefaults persistentDomainForName: TMDefaultsFilePath] mutableCopy];
-				[defaults setValue: aliasData forKey: TMDefaultsAliasDataKey];
-				[defaults setValue: volumeUUID forKey: TMDefaultsUUIDKey];
-				
-				[userDefaults setPersistentDomain: defaults forName: TMDefaultsFilePath];
-				
-				NSString * message = [NSString stringWithFormat:@"New Time Machine volume is: %@.\n", [volumeURL path]];
-				NSLog(@"%@", message);
-				switchedVolume = YES;
+				if ([task terminationStatus] == 0) {
+					NSLog(@"Switched Time Machine volume to %@.", [volumeURL path]);
+					switchedVolume = YES;
+				}
+				else {
+					NSLog(@"Failed to switch Time Machine volume to %@.", [volumeURL path]);
+					
+				}
 			}
 			else {
-				// NSLog(@"Time Machine volume does not need to be changed.");
+				NSLog(@"Time Machine volume does not need to be changed.");
 			}
 			
 			break;
@@ -160,60 +125,61 @@ BOOL switchVolume () {
 
 
 
+BOOL switchTimeMachine ( BOOL newStatus ) {
+	BOOL switchedTimeMachine = NO;
+	NSArray * tmutilOptions = [NSArray arrayWithObject:(newStatus ? @"enable" : @"disable")];
+	NSTask * task = [NSTask launchedTaskWithLaunchPath:TMUtilPath arguments:tmutilOptions];
+	[task waitUntilExit];
+	
+	if ([task terminationStatus] == 0) {
+		NSLog(@"Turned Time Machine %@.", (newStatus ? @"on" : @"off"));
+		switchedTimeMachine = YES;
+	}
+	else {
+		NSLog(@"Failed to turn Time Machine %@.", (newStatus ? @"on" : @"off"));
+		
+	}
+	
+	return switchedTimeMachine;
+}
+
+
+
 BOOL toggleTimeMachine () {
-	BOOL toggled = NO;
+	BOOL success = NO;
 	
 	NSDate * now = [NSDate date];
 	NSDictionary * locale =  [[NSUserDefaults standardUserDefaults] dictionaryRepresentation];
 	NSString * timeZone = [now descriptionWithCalendarFormat:@"%z" timeZone:nil locale:locale];
 	NSString * date = [now descriptionWithCalendarFormat:@"%Y-%m-%d" timeZone:nil locale:locale];
 	
-	NSDate * turnOnTime = [NSDate dateWithString: [NSString stringWithFormat:@"%@ 08:08:08 %@", date, timeZone]];
+	NSDate * turnOnTime = [NSDate dateWithString: [NSString stringWithFormat:@"%@ 08:00:00 %@", date, timeZone]];
 	NSDate * turnOffTime = [NSDate dateWithString: [NSString stringWithFormat:@"%@ 22:30:00 %@", date, timeZone]];
 	
-	BOOL desiredStatus = NO;
-	if ( [turnOnTime compare:now] == NSOrderedAscending  && [turnOffTime compare:now] == NSOrderedDescending ) {
-		desiredStatus = YES;
-	}
+	BOOL desiredTimeMachineStatus = ( [turnOnTime compare:now] == NSOrderedAscending
+									 && [turnOffTime compare:now] == NSOrderedDescending );
 	
 	NSUserDefaults * userDefaults = [NSUserDefaults standardUserDefaults];
 	NSDictionary * TMDefaults = [userDefaults persistentDomainForName: TMDefaultsFilePath];
+	const BOOL actualTimeMachineStatus = [[TMDefaults objectForKey: TMDefaultsAutoBackupKey] boolValue];
 	
-	const BOOL actualStatus = [[TMDefaults objectForKey: TMDefaultsAutoBackupKey] boolValue];
-	
-	if ( actualStatus != desiredStatus ) {
-		NSMutableDictionary * myTMDefaults = [TMDefaults mutableCopy];
-		[myTMDefaults setObject: [NSNumber numberWithBool: desiredStatus] forKey: TMDefaultsAutoBackupKey];
-		[userDefaults setPersistentDomain: myTMDefaults forName: TMDefaultsFilePath];
-		[userDefaults synchronize];
-
-		// check whether our modification made it:
-		const BOOL newStatus = [[[userDefaults persistentDomainForName: TMDefaultsFilePath] objectForKey: TMDefaultsAutoBackupKey] boolValue];
-		NSString * newStatusWord = desiredStatus ? @"ON" : @"OFF";
-
-		if ( newStatus == desiredStatus ) {
-			toggled = YES;
-			NSLog(@"Turned Time Machine %@", newStatusWord);
-		}
-		else{
-			NSLog(@"Failed to turn Time Machine %@.", newStatusWord);
-		}
+	if ( actualTimeMachineStatus != desiredTimeMachineStatus ) {
+		success = switchTimeMachine(desiredTimeMachineStatus);
 	}
-	
-	return toggled;
+
+	return success;
 }
 
 
 
 int main (int argc, const char * argv[]) {
 	if ( argc == 1 ) {
-		// no paramters, just switch the volume and change Time Machine's status
-		BOOL needsBackupd1 = switchVolume();
-		BOOL needsBackupd2 = toggleTimeMachine();
+		// no parameters, just switch the volume and change Time Machine’s status
+		BOOL needsToBackup = switchVolume() || toggleTimeMachine();
 		
-		if ( needsBackupd1 || needsBackupd2 ) {
+		if ( needsToBackup ) {
 			// defaults were changed: run Time Machine
-			[NSTask launchedTaskWithLaunchPath:TMBackupdHelperPath arguments:[NSArray arrayWithObject:@"-auto"]];
+			[NSTask launchedTaskWithLaunchPath:TMUtilPath arguments:[NSArray arrayWithObject:@"startbackup"]];
 		}
 	}
 	else if ( argc == 2 ) {
@@ -225,11 +191,11 @@ int main (int argc, const char * argv[]) {
 			NSLog(@"Source code at: http://github.com/ssp/TMSwitch");
 		}
 		else if ( [arg2 isEqualToString: @"list"] ) {
-			NSArray * myUUIDs = [[[NSUserDefaults standardUserDefaults] persistentDomainForName: TMSBundleID] objectForKey: TMSVolumeUUIDsKey];
+			NSArray * myUUIDs = [[[NSUserDefaults standardUserDefaults] persistentDomainForName: TMSwitchBundleID] objectForKey: TMSwitchVolumeUUIDsKey];
 			if ( myUUIDs && [myUUIDs count] > 0 ) {
-				NSLog(@"TMSwitch's known volume UUIDs:");
+				NSLog(@"TMSwitch’s known volume UUIDs:");
 				for ( NSString * theUUID in myUUIDs ) {
-					NSLog(@"%@\n", [theUUID cStringUsingEncoding:NSUTF8StringEncoding]);
+					NSLog(@"%@\n", theUUID);
 				}
 			}
 			else {
@@ -245,7 +211,7 @@ int main (int argc, const char * argv[]) {
 		NSString * UUID = UUIDForVolumeURL( URL );
 		if ( UUID != nil ) {
 			NSUserDefaults * userDefaults = [NSUserDefaults standardUserDefaults];
-			NSDictionary * originalDefaults = [userDefaults persistentDomainForName: TMSBundleID];
+			NSDictionary * originalDefaults = [userDefaults persistentDomainForName: TMSwitchBundleID];
 			NSMutableDictionary * defaults;
 			if ( originalDefaults == nil ) {
 				defaults = [NSMutableDictionary dictionaryWithCapacity:1];
@@ -254,7 +220,7 @@ int main (int argc, const char * argv[]) {
 				defaults = [originalDefaults mutableCopy];
 			}
 			
-			NSMutableArray * UUIDs = [[defaults objectForKey:TMSVolumeUUIDsKey] mutableCopy];
+			NSMutableArray * UUIDs = [[defaults objectForKey:TMSwitchVolumeUUIDsKey] mutableCopy];
 			if ( UUIDs == nil ) {
 				UUIDs = [NSMutableArray arrayWithCapacity:1];
 			}
@@ -266,8 +232,8 @@ int main (int argc, const char * argv[]) {
 				[UUIDs removeObject: UUID];
 			}
 			
-			[defaults setValue: UUIDs forKey: TMSVolumeUUIDsKey];
-			[userDefaults setPersistentDomain: defaults forName: TMSBundleID];
+			[defaults setValue:UUIDs forKey:TMSwitchVolumeUUIDsKey];
+			[userDefaults setPersistentDomain:defaults forName:TMSwitchBundleID];
 			[userDefaults synchronize];
 		}
 	}
